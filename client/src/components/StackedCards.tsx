@@ -16,6 +16,15 @@ export const StackedCards = ({ cards }: StackedCardsProps) => {
   const [isDragging, setIsDragging] = useState(false);
   const [startX, setStartX] = useState(0);
   const [currentX, setCurrentX] = useState(0);
+  const [isVisible, setIsVisible] = useState(false);
+  
+  useEffect(() => {
+    // Animação de entrada suave
+    const timer = setTimeout(() => {
+      setIsVisible(true);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, []);
 
   const handleMouseDown = (e: React.MouseEvent) => {
     setIsDragging(true);
@@ -69,11 +78,11 @@ export const StackedCards = ({ cards }: StackedCardsProps) => {
   if (cards.length === 0) return null;
 
   return (
-    <div className="relative w-72 h-40 cursor-grab active:cursor-grabbing select-none">
+    <div className={`relative w-72 h-40 cursor-grab active:cursor-grabbing select-none transition-all duration-700 ${isVisible ? 'opacity-100 translate-y-0' : 'opacity-0 translate-y-8'}`}>
       {cards.map((card, index) => (
         <div
           key={card.id}
-          className="absolute inset-0 bg-card border border-border rounded-xl p-4 shadow-lg transition-all duration-300"
+          className="absolute inset-0 bg-card border border-border rounded-xl p-4 shadow-lg transition-all duration-500"
           style={{
             zIndex: cards.length - Math.abs(index - currentIndex),
             transform: `
@@ -81,7 +90,8 @@ export const StackedCards = ({ cards }: StackedCardsProps) => {
               translateY(${(index - currentIndex) * 4}px) 
               scale(${1 - Math.abs(index - currentIndex) * 0.02})
             `,
-            opacity: Math.abs(index - currentIndex) > 2 ? 0 : 1 - Math.abs(index - currentIndex) * 0.1
+            opacity: Math.abs(index - currentIndex) > 2 ? 0 : 1 - Math.abs(index - currentIndex) * 0.1,
+            transitionDelay: isVisible ? `${index * 100}ms` : '0ms'
           }}
           onMouseDown={handleMouseDown}
           onMouseMove={handleMouseMove}

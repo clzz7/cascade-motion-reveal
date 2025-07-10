@@ -67,6 +67,7 @@ export const LoadingScreen = ({ onComplete }: LoadingScreenProps) => {
   const [counter, setCounter] = useState(0);
   const [isComplete, setIsComplete] = useState(false);
   const [isMovingToFinal, setIsMovingToFinal] = useState(false);
+  const [counterFadingOut, setCounterFadingOut] = useState(false);
 
   useEffect(() => {
     const totalDuration = 4000; // 4 segundos total
@@ -109,14 +110,19 @@ export const LoadingScreen = ({ onComplete }: LoadingScreenProps) => {
           setCounter(100);
           clearInterval(counterInterval);
           
-          // Inicia transição para posição final
+          // Primeiro fadeout do contador
+          setTimeout(() => {
+            setCounterFadingOut(true);
+          }, 200);
+          
+          // Depois move os cards
           completionTimeout = setTimeout(() => {
             setIsMovingToFinal(true);
             setTimeout(() => {
               const finalCards = cards.map(card => ({ ...card, isVisible: true }));
               onComplete(finalCards);
-            }, 1000);
-          }, 300);
+            }, 800);
+          }, 600);
           return;
         }
 
@@ -192,7 +198,7 @@ export const LoadingScreen = ({ onComplete }: LoadingScreenProps) => {
       </div>
 
       {/* Counter Section - Bottom Left */}
-      <div className="pb-20 page-padding">
+      <div className={`pb-20 page-padding transition-opacity duration-500 ${counterFadingOut ? 'opacity-0' : 'opacity-100'}`}>
         <div className="flex items-end">
           <div className="space-y-2">
             <div className="text-6xl md:text-7xl lg:text-8xl font-bold text-foreground font-mono tracking-tight">
