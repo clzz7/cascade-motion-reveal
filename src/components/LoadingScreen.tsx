@@ -34,6 +34,24 @@ const loadingCards: HeroCard[] = [
   },
   {
     id: 5,
+    title: "Machine Learning",
+    subtitle: "Pattern Recognition",
+    isVisible: false
+  },
+  {
+    id: 6,
+    title: "Data Mining",
+    subtitle: "Information Extraction",
+    isVisible: false
+  },
+  {
+    id: 7,
+    title: "AI Automation",
+    subtitle: "Process Optimization",
+    isVisible: false
+  },
+  {
+    id: 8,
     title: "AI Studio",
     subtitle: "Full Stack AI Solutions",
     isVisible: false
@@ -41,22 +59,28 @@ const loadingCards: HeroCard[] = [
 ];
 
 interface LoadingScreenProps {
-  onComplete: () => void;
+  onComplete: (finalCards: HeroCard[]) => void;
 }
 
 export const LoadingScreen = ({ onComplete }: LoadingScreenProps) => {
   const [cards, setCards] = useState(loadingCards);
   const [counter, setCounter] = useState(0);
   const [isComplete, setIsComplete] = useState(false);
+  const [isMovingToFinal, setIsMovingToFinal] = useState(false);
 
   useEffect(() => {
+    const totalDuration = 4000; // 4 segundos total
+    const cardAnimationDuration = 3200; // 3.2 segundos para cards
+    const cardsCount = cards.length - 1; // Não animamos o último
+    const cardInterval = cardAnimationDuration / cardsCount; // Tempo entre cards
+
     let cardTimeouts: NodeJS.Timeout[] = [];
     let counterInterval: NodeJS.Timeout;
     let completionTimeout: NodeJS.Timeout;
 
-    // Animação das cartas
+    // Animação sincronizada das cartas
     const animateCards = () => {
-      for (let i = 0; i < cards.length - 1; i++) {
+      for (let i = 0; i < cardsCount; i++) {
         const timeout = setTimeout(() => {
           setCards(prev => prev.map((card, index) => {
             if (index === i) {
@@ -67,88 +91,98 @@ export const LoadingScreen = ({ onComplete }: LoadingScreenProps) => {
             }
             return card;
           }));
-        }, i === 0 ? 800 : i * 400); // Primeira mais longa, depois mais rápido
+        }, i * cardInterval);
         
         cardTimeouts.push(timeout);
       }
     };
 
-    // Contador não-linear (aleatório)
+    // Contador sincronizado e não-linear
     const animateCounter = () => {
-      let currentValue = 0;
-      const targetValue = 100;
-      const duration = 3000; // 3 segundos total
       const startTime = Date.now();
 
       counterInterval = setInterval(() => {
         const elapsed = Date.now() - startTime;
-        const progress = Math.min(elapsed / duration, 1);
+        const progress = Math.min(elapsed / totalDuration, 1);
 
         if (progress >= 1) {
-          setCounter(targetValue);
+          setCounter(100);
           clearInterval(counterInterval);
           
-          // Aguarda um pouco após 100% antes de completar
+          // Inicia transição para posição final
           completionTimeout = setTimeout(() => {
-            setIsComplete(true);
-            setTimeout(() => onComplete(), 500);
-          }, 800);
+            setIsMovingToFinal(true);
+            setTimeout(() => {
+              const finalCards = cards.map(card => ({ ...card, isVisible: true }));
+              onComplete(finalCards);
+            }, 1000);
+          }, 300);
           return;
         }
 
-        // Progresso não-linear com randomização
+        // Progresso não-linear mais suave
         let nonLinearProgress;
-        if (progress < 0.3) {
-          // Início mais lento
-          nonLinearProgress = progress * 0.5;
-        } else if (progress < 0.7) {
-          // Meio acelerado com randomização
-          const randomFactor = 0.8 + Math.random() * 0.4; // 0.8 to 1.2
-          nonLinearProgress = 0.15 + (progress - 0.3) * 1.5 * randomFactor;
+        if (progress < 0.2) {
+          // Início bem lento
+          nonLinearProgress = progress * 0.3;
+        } else if (progress < 0.6) {
+          // Aceleração no meio com randomização
+          const randomFactor = 0.9 + Math.random() * 0.2;
+          nonLinearProgress = 0.06 + (progress - 0.2) * 1.8 * randomFactor;
+        } else if (progress < 0.9) {
+          // Continuação acelerada
+          nonLinearProgress = 0.78 + (progress - 0.6) * 0.6;
         } else {
-          // Final controlado para chegar em 100
-          nonLinearProgress = 0.75 + (progress - 0.7) * 0.83;
+          // Final controlado para chegar exatamente em 100
+          nonLinearProgress = 0.96 + (progress - 0.9) * 0.4;
         }
 
-        // Adiciona variação aleatória pequena
-        const randomVariation = (Math.random() - 0.5) * 0.02;
+        // Pequena variação aleatória
+        const randomVariation = (Math.random() - 0.5) * 0.015;
         const finalProgress = Math.min(Math.max(nonLinearProgress + randomVariation, 0), 1);
         
-        currentValue = Math.floor(finalProgress * targetValue);
+        const currentValue = Math.floor(finalProgress * 100);
         setCounter(currentValue);
-      }, 50); // Update a cada 50ms para fluidez
+      }, 60);
     };
 
-    // Inicia as animações
+    // Inicia as animações simultaneamente
     animateCards();
-    setTimeout(() => animateCounter(), 500); // Começa o contador depois das cartas
+    animateCounter();
 
     return () => {
       cardTimeouts.forEach(timeout => clearTimeout(timeout));
       if (counterInterval) clearInterval(counterInterval);
       if (completionTimeout) clearTimeout(completionTimeout);
     };
-  }, [onComplete]);
+  }, [onComplete, cards.length]);
 
   const currentCard = cards.find(card => card.isVisible) || cards[cards.length - 1];
 
   return (
-    <div className={`min-h-screen bg-background flex flex-col transition-opacity duration-500 ${isComplete ? 'opacity-0' : 'opacity-100'}`}>
-      {/* Cards Section - Top */}
-      <div className="flex-1 flex items-center justify-center pt-20">
-        <div className="relative h-80 w-full max-w-lg">
+    <div className={`min-h-screen bg-background flex flex-col transition-all duration-1000 ${isComplete ? 'opacity-0' : 'opacity-100'}`}>
+      {/* Cards Section */}
+      <div className={`flex-1 flex items-center justify-center pt-20 transition-all duration-1000 ${isMovingToFinal ? 'transform translate-y-96' : ''}`}>
+        <div className="relative">
           {cards.map((card, index) => (
             <div
               key={card.id}
-              className={`hero-card ${!card.isVisible ? 'animate-out' : ''} 
-                         bg-card border border-border rounded-2xl p-8 shadow-lg
-                         ${index === cards.length - 1 ? 'relative' : 'absolute'}`}
+              className={`
+                transition-all duration-300 bg-card border border-border rounded-xl p-6 shadow-lg
+                ${!card.isVisible ? 'opacity-0 scale-95 translate-y-4' : 'opacity-100 scale-100 translate-y-0'}
+                ${index === cards.length - 1 ? 'relative' : 'absolute inset-0'}
+                ${isMovingToFinal ? 'w-72 h-40' : 'w-80 h-48'}
+              `}
+              style={{
+                zIndex: card.isVisible ? 10 : index,
+                transform: isMovingToFinal ? `translateX(${(index - cards.length + 1) * 8}px) translateY(${(index - cards.length + 1) * 4}px)` : undefined
+              }}
             >
-              <div className="text-center space-y-4">
-                <div className="inline-block px-4 py-2 bg-accent/10 text-accent rounded-full text-sm font-medium">
+              <div className="text-center space-y-3">
+                <div className="inline-block px-3 py-1 bg-accent/10 text-accent rounded-full text-xs font-medium">
                   {card.subtitle}
                 </div>
-                <h1 className="text-hero text-foreground">
+                <h1 className={`font-bold text-foreground ${isMovingToFinal ? 'text-lg' : 'text-2xl'}`}>
                   {card.title}
                 </h1>
               </div>

@@ -7,10 +7,19 @@ import { TestimonialsSection } from '../components/TestimonialsSection';
 import { CTASection } from '../components/CTASection';
 import { Footer } from '../components/Footer';
 
+interface HeroCard {
+  id: number;
+  title: string;
+  subtitle: string;
+  isVisible: boolean;
+}
+
 const Index = () => {
   const [showMainContent, setShowMainContent] = useState(false);
+  const [stackedCards, setStackedCards] = useState<HeroCard[]>([]);
 
-  const handleLoadingComplete = () => {
+  const handleLoadingComplete = (finalCards: HeroCard[]) => {
+    setStackedCards(finalCards);
     setShowMainContent(true);
   };
 
@@ -20,7 +29,7 @@ const Index = () => {
 
   return (
     <div className="min-h-screen bg-background">
-      <HeroSection />
+      <HeroSection stackedCards={stackedCards} />
       <ServicesSection />
       <WorkSection />
       <TestimonialsSection />
