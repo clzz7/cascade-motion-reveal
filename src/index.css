@@ -2,56 +2,73 @@
 @tailwind components;
 @tailwind utilities;
 
-/* Definition of the design system. All colors, gradients, fonts, etc should be defined here. 
-All colors MUST be HSL.
-*/
+/* AI Studio Design System - Minimalismo Funcional */
 
 @layer base {
   :root {
-    --background: 0 0% 100%;
-    --foreground: 222.2 84% 4.9%;
+    /* AI Studio Color Palette */
+    --background: 0 0% 100%; /* #FFFFFF - Fundo Principal */
+    --background-alt: 0 0% 97.6%; /* #F9F9F9 - Branco Neve */
+    --foreground: 0 0% 10.2%; /* #1A1A1A - Texto Principal (Cinza Escuro/Quase Preto) */
 
-    --card: 0 0% 100%;
-    --card-foreground: 222.2 84% 4.9%;
+    --card: 0 0% 100%; /* #FFFFFF - Cards */
+    --card-foreground: 0 0% 10.2%; /* #1A1A1A */
 
     --popover: 0 0% 100%;
-    --popover-foreground: 222.2 84% 4.9%;
+    --popover-foreground: 0 0% 10.2%;
 
-    --primary: 222.2 47.4% 11.2%;
-    --primary-foreground: 210 40% 98%;
+    /* Brand Purple - Destaque e Marca */
+    --primary: 261 69% 50%; /* #6A26D9 - Violeta Vibrante */
+    --primary-foreground: 0 0% 100%;
 
-    --secondary: 210 40% 96.1%;
-    --secondary-foreground: 222.2 47.4% 11.2%;
+    --secondary: 0 0% 96.1%;
+    --secondary-foreground: 0 0% 10.2%;
 
-    --muted: 210 40% 96.1%;
-    --muted-foreground: 215.4 16.3% 46.9%;
+    --muted: 0 0% 96.1%;
+    --muted-foreground: 0 0% 45.1%;
 
-    --accent: 210 40% 96.1%;
-    --accent-foreground: 222.2 47.4% 11.2%;
+    --accent: 261 69% 50%; /* Brand purple for accents */
+    --accent-foreground: 0 0% 100%;
 
     --destructive: 0 84.2% 60.2%;
-    --destructive-foreground: 210 40% 98%;
+    --destructive-foreground: 0 0% 98%;
 
-    --border: 214.3 31.8% 91.4%;
-    --input: 214.3 31.8% 91.4%;
-    --ring: 222.2 84% 4.9%;
+    /* Borders and Dividers */
+    --border: 0 0% 91.8%; /* #EAEAEA - Cinza Claro */
+    --input: 0 0% 91.8%;
+    --ring: 261 69% 50%;
 
-    --radius: 0.5rem;
+    --radius: 1rem; /* 16px for modern rounded corners */
+
+    /* Animation Variables */
+    --animation-duration-fast: 200ms;
+    --animation-duration-normal: 500ms;
+    --animation-duration-slow: 700ms;
+    --animation-easing: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+
+    /* Typography Scale */
+    --font-size-hero: 3rem; /* 48px */
+    --font-size-h2: 2.5rem; /* 40px */
+    --font-size-h3: 1.25rem; /* 20px */
+    --font-size-body: 1rem; /* 16px */
+    --line-height-tight: 1.2;
+    --line-height-normal: 1.5;
+    --line-height-relaxed: 1.7;
+
+    /* Spacing System */
+    --spacing-section: 6.25rem; /* 100px */
+    --spacing-section-large: 7.5rem; /* 120px */
+    --spacing-content: 1.5rem; /* 24px */
+    --spacing-text: 1rem; /* 16px */
+    --spacing-page: 1.5rem; /* 24px padding lateral mobile */
 
     --sidebar-background: 0 0% 98%;
-
     --sidebar-foreground: 240 5.3% 26.1%;
-
     --sidebar-primary: 240 5.9% 10%;
-
     --sidebar-primary-foreground: 0 0% 98%;
-
     --sidebar-accent: 240 4.8% 95.9%;
-
     --sidebar-accent-foreground: 240 5.9% 10%;
-
     --sidebar-border: 220 13% 91%;
-
     --sidebar-ring: 217.2 91.2% 59.8%;
   }
 
@@ -100,6 +117,109 @@ All colors MUST be HSL.
   }
 
   body {
-    @apply bg-background text-foreground;
+    @apply bg-background text-foreground font-inter;
+  }
+}
+
+/* AI Studio Animation Keyframes */
+@layer utilities {
+  /* Scroll-triggered reveal animation */
+  .scroll-reveal {
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity var(--animation-duration-normal) var(--animation-easing), 
+                transform var(--animation-duration-normal) var(--animation-easing);
+  }
+
+  .scroll-reveal.is-visible {
+    opacity: 1;
+    transform: translateY(0);
+  }
+
+  /* Hero card stack animation */
+  .hero-card {
+    position: absolute;
+    top: 0;
+    left: 0;
+    right: 0;
+    opacity: 1;
+    transform: scale(1) translateY(0);
+    transition: all var(--animation-duration-fast) var(--animation-easing);
+  }
+
+  .hero-card.animate-out {
+    opacity: 0;
+    transform: scale(0.9) translateY(-50px);
+  }
+
+  /* Pulsing dots animation */
+  @keyframes pulse-dots {
+    0% { opacity: 0.3; }
+    50% { opacity: 1; }
+    100% { opacity: 0.3; }
+  }
+
+  .pulse-dots {
+    animation: pulse-dots 3s linear infinite;
+  }
+
+  .pulse-dots-delayed-1 {
+    animation: pulse-dots 3s linear infinite;
+    animation-delay: 150ms;
+  }
+
+  .pulse-dots-delayed-2 {
+    animation: pulse-dots 3s linear infinite;
+    animation-delay: 300ms;
+  }
+
+  .pulse-dots-delayed-3 {
+    animation: pulse-dots 3s linear infinite;
+    animation-delay: 450ms;
+  }
+
+  /* Typography utilities */
+  .text-hero {
+    font-size: var(--font-size-hero);
+    line-height: var(--line-height-tight);
+    font-weight: 700;
+  }
+
+  .text-h2 {
+    font-size: var(--font-size-h2);
+    line-height: var(--line-height-tight);
+    font-weight: 700;
+  }
+
+  .text-h3 {
+    font-size: var(--font-size-h3);
+    line-height: var(--line-height-normal);
+    font-weight: 400;
+  }
+
+  .text-body {
+    font-size: var(--font-size-body);
+    line-height: var(--line-height-relaxed);
+    font-weight: 400;
+  }
+
+  /* Layout utilities */
+  .section-spacing {
+    padding-top: var(--spacing-section);
+    padding-bottom: var(--spacing-section);
+  }
+
+  .section-spacing-large {
+    padding-top: var(--spacing-section-large);
+    padding-bottom: var(--spacing-section-large);
+  }
+
+  .page-padding {
+    padding-left: var(--spacing-page);
+    padding-right: var(--spacing-page);
+  }
+
+  .content-spacing {
+    margin-bottom: var(--spacing-content);
   }
 }
